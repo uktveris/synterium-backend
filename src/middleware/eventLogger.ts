@@ -24,7 +24,7 @@ function logEvent(message: string, filename: string) {
     .catch((err) => console.log((err as Error).message));
 }
 
-function logger(req, res, next) {
+function logger(req: any, res: any, next: any) {
   const msg = `${req.method}\t${req.url}`;
   logEvent(msg, "reqlog.txt");
   next();
