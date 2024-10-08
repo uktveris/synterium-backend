@@ -82,7 +82,6 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   console.log("received email: " + email);
   console.log("received password: " + password);
-  // const user = users.find((u) => u.email === email);
 
   const user = await User.findOne({ email: email }).exec();
 
@@ -115,7 +114,70 @@ app.post("/login", async (req, res) => {
   return res.json({ accessToken });
 });
 
-// app.get("/auth", verifyJwt, (req, res) => {});
+app.get("/refresh", async (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies.jwt) {
+    return res.status(401).send({ msg: "no jwt sent with cookie!" });
+  }
+
+  console.log("cookies from jwt: ");
+  console.log(cookies.jwt);
+
+  const refreshToken = cookies.jwt;
+
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    return res
+      .status(403)
+      .send({ msg: "no matching jwt for this user found!" });
+  }
+
+  jwt.verify(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET as string,
+    (err: any, decoded: any) => {
+      if (err || user.email !== decoded.email) {
+        return res.status(403).send({
+          msg: "error while processing jwt: " + (err as Error).message,
+        });
+      }
+      const accessToken = jwt.sign(
+        { email: decoded.email },
+        process.env.ACCESS_TOKEN_SECRET as string,
+        { expiresIn: "15min" },
+      );
+      console.log("success! refreshed accesstoken!");
+      return res.json({ accessToken });
+    },
+  );
+});
+
+app.post("logout", async (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies.jwt) {
+    return res.sendStatus(204);
+  }
+
+  const refreshToken = cookies.jwt;
+
+  const user = await User.findOne({ refreshToken });
+
+  if (!user) {
+    res.clearCookie("jwt", { httpOnly: true });
+    return res.sendStatus(204);
+  }
+
+  user.refreshToken = "";
+  const result = await user.save();
+  res.clearCookie("jwt", { httpOnly: true });
+  return res.sendStatus(204);
+});
+
+app.get("/auth", verifyJwt, (req, res) => {
+  return res
+    .status(200)
+    .send({ msg: "you reached the endpoint successfully!" });
+});
 
 mongoose.connection.once("open", () => {
   console.log("Connected to mongoDB!");

@@ -10,3 +10,17 @@
 20240913	21:09:40	e112de17-8648-4c4d-b463-33ad377d2d6e	POST	/login
 20240913	21:10:35	871ba417-0275-476b-a870-54d2379b2441	GET	/api/test
 20240913	21:10:35	bd4e9aba-880e-46f1-9ca4-74db37ba3aae	GET	/api/test
+20241004	20:59:21	76d70633-f74b-4a56-be99-11dacf02eda5	OPTIONS	http://localhost:5173	/login
+20241004	20:59:21	d94e9877-13b3-4e6f-91c6-19ded0ff3378	POST	http://localhost:5173	/login
+20241004	20:59:45	055351ea-abd8-44d7-bc9f-f85203d19e22	OPTIONS	http://localhost:5173	/login
+20241004	20:59:45	c4d2bb64-8c00-4f15-8d32-e344b4d6d786	POST	http://localhost:5173	/login
+20241004	21:02:07	265c4cd0-6031-4f7e-b2f9-14831e544514	OPTIONS	http://localhost:5173	/login
+20241004	21:02:07	33829eb6-6133-49e2-ba45-20aa9af0f8fd	POST	http://localhost:5173	/login
+20241004	21:02:26	abb47d5f-840a-4741-8ab1-91dd2f16aefe	OPTIONS	http://localhost:5173	/login
+20241004	21:02:26	25abb420-163c-47b3-a641-e22417402aa9	POST	http://localhost:5173	/login
+20241004	21:02:31	34033927-ae58-4ea6-9d5e-94d9cf1b20ac	GET	http://localhost:5173	/api/test
+20241004	21:02:31	be02b828-8947-4303-a8ff-414723b06621	GET	http://localhost:5173	/api/test
+20241004	21:02:37	63c2756e-cb4e-415e-bc3d-53f9fa980c87	GET	http://localhost:5173	/api/test
+20241004	21:02:37	6c32d941-d952-4725-9ab7-0b20ad6eccee	GET	http://localhost:5173	/api/test
+20241004	21:02:53	51d8bd66-7aae-461b-94bc-f66ac08c1e10	GET	http://localhost:5173	/api/test
+20241004	21:02:53	5d658ac6-70e4-4e22-b417-2b2c6adf4a3b	GET	http://localhost:5173	/api/test

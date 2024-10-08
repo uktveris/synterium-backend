@@ -25,7 +25,7 @@ function logEvent(message: string, filename: string) {
 }
 
 function logger(req: any, res: any, next: any) {
-  const msg = `${req.method}\t${req.url}`;
+  const msg = `${req.method}\t${req.headers.origin}\t${req.url}`;
   logEvent(msg, "reqlog.txt");
   next();
 }
