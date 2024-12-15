@@ -1,15 +1,8 @@
-// import { EventEmitter } from "events";
 import { format } from "date-fns";
 import { randomUUID } from "crypto";
 import fspromises from "fs/promises";
 import path from "path";
 import fs from "fs";
-
-// class CustomEmitter extends EventEmitter {}
-
-// const emitter = new CustomEmitter();
-
-// emitter.on("log", (message) => {});
 
 function logEvent(message: string, filename: string) {
   const dateTime = `${format(new Date(), "yyyyMMdd\tHH:mm:ss")}`;

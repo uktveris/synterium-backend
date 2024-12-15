@@ -1,6 +1,6 @@
 // import { config, configDotenv } from "dotenv";
 import dotenv from "dotenv";
-import express from "express";
+import express, { CookieOptions } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { users } from "./constants";
@@ -37,11 +37,17 @@ const messages = [
   { owner: "mate", message: "the las one..." },
 ];
 
+const cookieOptions: CookieOptions = {
+  httpOnly: true,
+  sameSite: "lax",
+  maxAge: 24 * 60 * 60000,
+};
+
 app.get("/", (req, res) => {
   res.status(200).send("hello from the server..");
 });
 
-app.get("/api/test", (req, res) => {
+app.get("/api/test", verifyJwt, (req, res) => {
   res.status(200).send(messages);
 });
 
@@ -78,7 +84,7 @@ app.post("/register", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   console.log("req origin: " + req.headers.origin);
-  console.log(req.body);
+  console.log("req body: " + req.body);
   const { email, password } = req.body;
   console.log("received email: " + email);
   console.log("received password: " + password);
@@ -86,41 +92,46 @@ app.post("/login", async (req, res) => {
   const user = await User.findOne({ email: email }).exec();
 
   if (!user) {
+    console.log("LOG: login: no user in the db found");
     return res.status(401).send({ msg: "no user found" });
   }
 
   const match = await bcrypt.compare(password, user.password);
 
   if (!match) {
+    console.log("LOG: login: passwords did not match");
     return res.status(401).send({ msg: "incorrect password" });
   }
 
   const accessToken = jwt.sign(
     { email: user.email },
     process.env.ACCESS_TOKEN_SECRET as string,
-    { expiresIn: "15m" },
+    // { expiresIn: "15m" },
+    { expiresIn: "30s" },
   );
   const refreshToken = jwt.sign(
     { email: user.email },
     process.env.REFRESH_TOKEN_SECRET as string,
     { expiresIn: "1d" },
   );
-  console.log("hello");
   user.refreshToken = refreshToken;
   const result = await user.save();
   console.log("result: " + result);
 
-  res.cookie("jwt", { httpOnly: true, maxAge: 24 * 60 * 60000 });
+  res.cookie("jwt", refreshToken, cookieOptions);
+  console.log("returning access token: " + accessToken);
   return res.json({ accessToken });
 });
 
 app.get("/refresh", async (req, res) => {
   const cookies = req.cookies;
+  console.log("LOG: refresh - accessing refresh endpoint");
   if (!cookies.jwt) {
+    console.log("LOG: refresh - no jwt was sent with a cookie");
     return res.status(401).send({ msg: "no jwt sent with cookie!" });
   }
 
-  console.log("cookies from jwt: ");
+  console.log("LOG: refresh- cookies from jwt: ");
   console.log(cookies.jwt);
 
   const refreshToken = cookies.jwt;
@@ -146,7 +157,7 @@ app.get("/refresh", async (req, res) => {
         process.env.ACCESS_TOKEN_SECRET as string,
         { expiresIn: "15min" },
       );
-      console.log("success! refreshed accesstoken!");
+      console.log("LOG: refresh - success! refreshed accesstoken!");
       return res.json({ accessToken });
     },
   );
@@ -163,13 +174,13 @@ app.post("logout", async (req, res) => {
   const user = await User.findOne({ refreshToken });
 
   if (!user) {
-    res.clearCookie("jwt", { httpOnly: true });
+    res.clearCookie("jwt", cookieOptions);
     return res.sendStatus(204);
   }
 
   user.refreshToken = "";
   const result = await user.save();
-  res.clearCookie("jwt", { httpOnly: true });
+  res.clearCookie("jwt", cookieOptions);
   return res.sendStatus(204);
 });
 
