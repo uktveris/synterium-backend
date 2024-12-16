@@ -13,6 +13,7 @@ import mongoose from "mongoose";
 import { connectDB } from "./config/dbConn";
 import { User } from "./models/User";
 import bcrypt from "bcrypt";
+import multer from "multer";
 
 connectDB();
 
@@ -163,7 +164,30 @@ app.get("/refresh", async (req, res) => {
   );
 });
 
-app.post("logout", async (req, res) => {
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post(
+  "/file-upload",
+  verifyJwt,
+  upload.array("files"),
+  (req: any, res: any) => {
+    console.log("LOG: file-upload: req body:");
+    console.log(req.body);
+    const files: any = req.files;
+    if (!files) {
+      console.log("ERROR: file-upload: no files came with req..");
+      return res.status(400).send({ message: "no files received" });
+    }
+
+    console.log("LOG: file-upload: success: received files:");
+    console.log(files);
+    // console.log(req.files);
+
+    return res.sendStatus(200);
+  },
+);
+
+app.post("/logout", async (req, res) => {
   const cookies = req.cookies;
   if (!cookies.jwt) {
     return res.sendStatus(204);
@@ -172,6 +196,8 @@ app.post("logout", async (req, res) => {
   const refreshToken = cookies.jwt;
 
   const user = await User.findOne({ refreshToken });
+  console.log("LOG: logout: found user by refresh token:");
+  console.log(user);
 
   if (!user) {
     res.clearCookie("jwt", cookieOptions);
@@ -181,6 +207,8 @@ app.post("logout", async (req, res) => {
   user.refreshToken = "";
   const result = await user.save();
   res.clearCookie("jwt", cookieOptions);
+  console.log("LOG: logout: user after clearing refresh token:");
+  console.log(user);
   return res.sendStatus(204);
 });
 
