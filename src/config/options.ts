@@ -9,7 +9,7 @@ const corsOptions = {
 const cookieOptions: CookieOptions = {
   httpOnly: true,
   sameSite: "lax",
-  maxAge: 24 * 60 * 60000,
+  // maxAge: 24 * 60 * 60000,
 };
 
 export { corsOptions, cookieOptions };

@@ -1,19 +1,19 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User";
+import { cookieOptions } from "../config/options";
 
 const refresh = async (req: Request, res: Response) => {
   const cookies = req.cookies;
-  console.log("LOG: refresh - accessing refresh endpoint");
-  if (!cookies.jwt) {
+  if (!cookies.refresh) {
     console.log("LOG: refresh - no jwt was sent with a cookie");
     return res.status(401).send({ msg: "no jwt sent with cookie!" });
   }
 
   console.log("LOG: refresh- cookies from jwt: ");
-  console.log(cookies.jwt);
+  console.log(cookies.refresh);
 
-  const refreshToken = cookies.jwt;
+  const refreshToken = cookies.refresh;
 
   const user = await User.findOne({ refreshToken });
   if (!user) {
@@ -34,10 +34,11 @@ const refresh = async (req: Request, res: Response) => {
       const accessToken = jwt.sign(
         { email: decoded.email },
         process.env.ACCESS_TOKEN_SECRET as string,
-        { expiresIn: "30s" },
-        // { expiresIn: "15min" },
+        { expiresIn: "10m" },
       );
       console.log("LOG: refresh - success! refreshed accesstoken!");
+      res.clearCookie("access", cookieOptions);
+      res.cookie("access", accessToken, cookieOptions);
       return res.json({ accessToken });
     },
   );

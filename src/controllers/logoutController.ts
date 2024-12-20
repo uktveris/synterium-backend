@@ -4,24 +4,22 @@ import { User } from "../models/User";
 
 const logout = async (req: Request, res: Response) => {
   const cookies = req.cookies;
-  if (!cookies.jwt) {
+  if (!cookies.refresh) {
     return res.sendStatus(204);
   }
 
-  const refreshToken = cookies.jwt;
+  const refreshToken = cookies.refresh;
 
   const user = await User.findOne({ refreshToken });
-  console.log("LOG: logout: found user by refresh token:");
-  console.log(user);
-
   if (!user) {
-    res.clearCookie("jwt", cookieOptions);
+    res.clearCookie("refresh", cookieOptions);
     return res.sendStatus(204);
   }
 
   user.refreshToken = "";
   const result = await user.save();
-  res.clearCookie("jwt", cookieOptions);
+  res.clearCookie("refresh", cookieOptions);
+  res.clearCookie("access", cookieOptions);
   console.log("LOG: logout: user after clearing refresh token:");
   console.log(user);
   return res.sendStatus(204);

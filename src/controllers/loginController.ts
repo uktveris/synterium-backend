@@ -5,12 +5,7 @@ import bcrypt from "bcrypt";
 import { cookieOptions } from "../config/options";
 
 const login = async (req: Request, res: Response) => {
-  console.log("req origin: " + req.headers.origin);
-  console.log("req body: " + req.body);
   const { email, password } = req.body;
-  console.log("received email: " + email);
-  console.log("received password: " + password);
-
   const user = await User.findOne({ email: email }).exec();
 
   if (!user) {
@@ -28,8 +23,7 @@ const login = async (req: Request, res: Response) => {
   const accessToken = jwt.sign(
     { email: user.email },
     process.env.ACCESS_TOKEN_SECRET as string,
-    // { expiresIn: "15m" },
-    { expiresIn: "30s" },
+    { expiresIn: "10m" },
   );
   const refreshToken = jwt.sign(
     { email: user.email },
@@ -40,7 +34,8 @@ const login = async (req: Request, res: Response) => {
   const result = await user.save();
   console.log("result: " + result);
 
-  res.cookie("jwt", refreshToken, cookieOptions);
+  res.cookie("refresh", refreshToken, cookieOptions);
+  res.cookie("access", accessToken, cookieOptions);
   console.log("returning access token: " + accessToken);
   return res.json({ accessToken });
 };

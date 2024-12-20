@@ -11,10 +11,7 @@ function verifyJwt(req: any, res: any, next: any) {
     );
     return res.sendStatus(401);
   }
-  console.log("LOG: verifyJwt - auth header:");
-  console.log(authHeader);
   const token = authHeader.split(" ")[1];
-  console.log("LOG: verifyJwt - token value: " + token);
   jwt.verify(
     token,
     process.env.ACCESS_TOKEN_SECRET as string,
