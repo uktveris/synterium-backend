@@ -13,6 +13,7 @@ const logout = async (req: Request, res: Response) => {
   const user = await User.findOne({ refreshToken });
   if (!user) {
     res.clearCookie("refresh", cookieOptions);
+    res.clearCookie("access", cookieOptions);
     return res.sendStatus(204);
   }
 

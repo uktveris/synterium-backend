@@ -20,19 +20,27 @@ const login = async (req: Request, res: Response) => {
     return res.status(401).send({ msg: "incorrect password" });
   }
 
+  const userId = user._id.toString();
+
+  const jwtPayload = {
+    id: userId,
+    email: user.email,
+  };
+
   const accessToken = jwt.sign(
-    { email: user.email },
+    // { email: user.email },
+    jwtPayload,
     process.env.ACCESS_TOKEN_SECRET as string,
     { expiresIn: "10m" },
   );
   const refreshToken = jwt.sign(
-    { email: user.email },
+    // { email: user.email },
+    jwtPayload,
     process.env.REFRESH_TOKEN_SECRET as string,
     { expiresIn: "1d" },
   );
   user.refreshToken = refreshToken;
   const result = await user.save();
-  console.log("result: " + result);
 
   res.cookie("refresh", refreshToken, cookieOptions);
   res.cookie("access", accessToken, cookieOptions);

@@ -22,6 +22,13 @@ const refresh = async (req: Request, res: Response) => {
       .send({ msg: "no matching jwt for this user found!" });
   }
 
+  const userId = user._id.toString();
+
+  const jwtPayload = {
+    id: userId,
+    email: user.email,
+  };
+
   jwt.verify(
     refreshToken,
     process.env.REFRESH_TOKEN_SECRET as string,
@@ -32,7 +39,8 @@ const refresh = async (req: Request, res: Response) => {
         });
       }
       const accessToken = jwt.sign(
-        { email: decoded.email },
+        // { email: decoded.email },
+        jwtPayload,
         process.env.ACCESS_TOKEN_SECRET as string,
         { expiresIn: "10m" },
       );

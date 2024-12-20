@@ -20,7 +20,11 @@ function verifyJwt(req: any, res: any, next: any) {
         console.log("LOG: verifyJwt - error: " + (err as Error).message);
         return res.sendStatus(403);
       }
-      req.user = decoded.email;
+      const decodedUser = {
+        id: decoded.id,
+        email: decoded.email,
+      };
+      req.user = decodedUser;
       next();
     },
   );
