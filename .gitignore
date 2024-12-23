@@ -5,3 +5,5 @@ dist/
 node_modules/
 
 google_service_key/
+
+src/logs/

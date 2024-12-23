@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import { bucket } from "../config/gcsProvider";
+import FileMetadata from "../models/FileMetadata";
 
-const fileUpload = async (req: Request, res: Response) => {
+const fileUpload = async (req: any, res: Response) => {
+  const { email, id } = req.user;
   const files = req.files as Express.Multer.File[];
   if (!files || files.length === 0) {
     console.log("ERROR: file-upload: no files came with req..");
@@ -31,6 +33,18 @@ const fileUpload = async (req: Request, res: Response) => {
 
         stream.on("finish", () => {
           console.log("LOG: uploaded file!: " + f.originalname);
+
+          const dbResult = FileMetadata.create({
+            ownerId: id,
+            name: f.originalname,
+            size: f.size,
+            fileType: f.mimetype,
+          }).catch((err) =>
+            console.log("ERROR: fileUpload: " + (err as Error).message),
+          );
+          console.log("LOG: fileUpload: db result:");
+          console.log(dbResult);
+
           resolve();
         });
 
@@ -59,15 +73,4 @@ const fileUpload = async (req: Request, res: Response) => {
   return res.sendStatus(200);
 };
 
-const fileTest = [
-  { title: "first title", desc: "my desc" },
-  { title: "second title", desc: "another desc" },
-  { title: "my last title", desc: "yet another desc.." },
-];
-
-const fileTestC = async (req: Request, res: Response) => {
-  // res.status(200).json(fileTest);
-  res.status(200).send(fileTest);
-};
 export default fileUpload;
-export { fileTestC };
