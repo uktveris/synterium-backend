@@ -66,11 +66,6 @@ const fileUpload = async (req: any, res: Response) => {
       message: "error while uploading files: " + (err as Error).message,
     });
   }
-
-  console.log("LOG: file-upload: success: received files:");
-  console.log(files);
-
-  return res.sendStatus(200);
 };
 
 export default fileUpload;
